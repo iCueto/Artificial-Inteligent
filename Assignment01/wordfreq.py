@@ -4,6 +4,7 @@
 import cPickle as pickle
 import os,sys
 import re
+import argparse
 # import time,datetime
 # import heapq
 # import urllib
@@ -49,51 +50,45 @@ def wordfreq(instr, wf=None, stripPunc=True, toLower=True) :
 ### otherwise, print it to standard out.
 
 if __name__ == '__main__' :
-    description = """Word Frequencies:
+    parser = argparse.ArgumentParser(description="""Word Frequencies:
     function that takes as input a string and, optionally,
     a dictionary, and returns the dictionary populated with word frequencies.
     provide options to strip punctuation and convert to lowercase.
     Ranmocy Sheng, Copyright 2013, GPL
-    """
-    usage = """Usage: wordfreq {--nostrip --noConvert --pfile=outfile} file
-    if --nostrip, don't strip punctuation
-    if --noConvert, don't convert everything to lower case
-    if --pfile=outfile, pickle the resulting dictionary and store it in outfile.
-    otherwise, print it to standard out.
-    """
+    """)
+    parser.add_argument('source_file', type=file, help='The source file.')
+    parser.add_argument('--nostrip', dest='stripPunc', action='store_false',
+                       help='if --nostrip, don\'t strip punctuation')
+    parser.add_argument('--noConvert', dest='toLower', action='store_false',
+                       help='if --noConvert, don\'t convert everything to lower case')
+    parser.add_argument('--outfile', dest='outfile',
+                       help='if --pfile=outfile, pickle the resulting dictionary and store it in outfile. otherwise, print it to standard out.')
 
-    source_strings = []
-    stripPunc = True
-    toLower = True
-    outfile = None
+    args = parser.parse_args()
 
-    for arg in sys.argv:
-        if arg == '--nostrip':
-            stripPunc = False
-        elif arg == '--noConvert':
-            toLower = False
-        elif arg[0:7] == '--pfile':
-            outfile = arg[8:]
-        elif os.path.isfile(arg):
-            if arg != sys.argv[0]: source_strings.append(open(arg).read())
-        else:
-            print "Unkown '%s'" % arg
-            print description
-            print usage
-            sys.exit(1)
-
-    if outfile:
+    if args.outfile:
         try:
-           wf = pickle.load(open(outfile, "rb"))
-        except IOError:
+            wf = pickle.load(open(args.outfile, 'r'))
+        except:
+            print 'Skip reading from the outfile, since it is not exist.'
             wf = {}
     else:
         wf = {}
 
-    for instr in source_strings:
-        wf = wordfreq(instr, wf, stripPunc, toLower)
+    try:
+        instr = args.source_file.read()
+    except:
+        SystemExit('[ERROR] Read the source file!')
+    finally:
+        args.source_file.close
 
-    if outfile:
-        pickle.dump(wf, open(outfile, "wb"))
+    wf = wordfreq(instr, wf, args.stripPunc, args.toLower)
+
+    if args.outfile:
+        try:
+            pickle.dump(wf, open(args.outfile, 'w'))
+        except:
+            print '[ERROR] Can not write to outfile!'
+            print wf
     else:
         print wf
