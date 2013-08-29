@@ -21,6 +21,9 @@ import re
 ### g[a] = (b,dist,time)
 
 class Graph:
+    dist_unit='km'
+    time_unit='min'
+
     def __init__(self, infile=None) :
         self.vertex_list = {}
         self.adjlist = {}
@@ -32,7 +35,7 @@ class Graph:
         for name,edge_list in self.adjlist.iteritems():
             ans += "%s: [\n" % name
             for edge in edge_list:
-                ans += "  %s dist=%s time=%s" % (edge.dest, edge.distance, edge.time)
+                ans += "  %s dist=%s%s time=%s%s\n" % (edge.dest, edge.distance, self.dist_unit, edge.time, self.time_unit)
             ans += "]\n"
         ans += "}"
         return ans
@@ -46,8 +49,8 @@ class Graph:
 
     def createEdges(self, inStr) :
         src, dest, dist, time = inStr.split(" ",4)
-        dist=dist.split("=")[1]
-        time=time.split("=")[1]
+        dist=float(dist.split("=")[1].replace(self.dist_unit, '')) # remove km, change it to float
+        time=int(time.split("=")[1].replace(self.time_unit, '')) # remove min, change it to int
         e1 = Edge(src,dest,dist, time)
         e2 = Edge(dest,src,dist, time)
         return e1, e2
@@ -94,40 +97,46 @@ class Graph:
         #visited = {}
         #for name, vertex in self.vertex_list.iteritems() : visited[name] = False
         unvisited = set()
-        for name, vertex in self.vertex_list.iteritems() : if name != source : unvisited.add(vertex)
+        for name, vertex in self.vertex_list.iteritems() : unvisited.add(vertex)
         current = source
 
-        #3. For the current node, consider jall of its unvisited neighbors and
-        #calculate their tentative distances. For example, if the current node A
-        #is marked with a distance of 6, and the edge connecting it with a neighbor B
-        #has length 2, then the distance to B (through A) will be 6 + 2 = 8.
-        #If this distance is less than the previously recorded tentative distance
-        #of B, then overwrite that distance. Even though a neighbor has been examined,
-        #it is not marked as "visited" at this time, and it remains in the unvisited set.
-        neighbor_list = self.adjlist[current]
-        for edge in neighbor_list:
-            target = edge.desc
-            if dists[target] > dists[current] + edge.distance:
-                dists[target] = dists[current] + edge.distance
-                pathes[target] = current
+        while len(unvisited)>0:
+            #3. For the current node, consider jall of its unvisited neighbors and
+            #calculate their tentative distances. For example, if the current node A
+            #is marked with a distance of 6, and the edge connecting it with a neighbor B
+            #has length 2, then the distance to B (through A) will be 6 + 2 = 8.
+            #If this distance is less than the previously recorded tentative distance
+            #of B, then overwrite that distance. Even though a neighbor has been examined,
+            #it is not marked as "visited" at this time, and it remains in the unvisited set.
+            neighbor_list = self.adjlist[current]
+            for edge in neighbor_list:
+                target = edge.dest
+                if dists[target] > dists[current] + edge.distance:
+                    dists[target] = dists[current] + edge.distance
+                    pathes[target] = current
 
-        #4. When we are done considering all of the neighbors of the current node,
-        #mark the current node as visited and remove it from the unvisited set.
-        #A visited node will never be checked again.
-        unvisited.remove(self.vertex_list[current])
+            #4. When we are done considering all of the neighbors of the current node,
+            #mark the current node as visited and remove it from the unvisited set.
+            #A visited node will never be checked again.
+            unvisited.remove(self.vertex_list[current])
 
-        #5. If the destination node has been marked visited (when planning a route
-        #between two specific nodes) or if the smallest tentative distance among
-        #the nodes in the unvisited set is infinity (when planning a complete traversal),
-        #then stop. The algorithm has finished.
+            #5. If the destination node has been marked visited (when planning a route
+            #between two specific nodes) or if the smallest tentative distance among
+            #the nodes in the unvisited set is infinity (when planning a complete traversal),
+            #then stop. The algorithm has finished.
+            found_next_vertex = False
+            min_dist = float('inf')
+            for vertex in unvisited:
+                name = vertex.name
+                if dists[name] < min_dist:
+                    found_next_vertex = True
+                    current = name
+                    min_dist = dists[name]
+            if not found_next_vertex : break
 
+            #6. Select the unvisited node that is marked with the smallest tentative distance, and set it as the new "current node" then go back to step 3.
 
-        #6. Select the unvisited node that is marked with the smallest tentative distance, and set it as the new "current node" then go back to step 3.
-
-
-        #TODO
-
-        return 'TODO dijkstra'
+        return dists, pathes
 
 ### classes representing vertices and edges
 
@@ -188,4 +197,11 @@ if __name__ == '__main__' :
         print graph
 
     if args.startNode:
-        print graph.dijkstra(args.startNode)
+        dists,pathes = graph.dijkstra(args.startNode)
+        print "Min distance:"
+        print "{"
+        for name,dist in dists.iteritems():
+            path = [name]
+            while not path[0] == args.startNode : path.insert(0,pathes[path[0]])
+            print "[%s:(%s,%s)]," % (name,dist,path)
+        print "}"
