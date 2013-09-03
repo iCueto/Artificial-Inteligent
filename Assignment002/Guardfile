@@ -6,4 +6,10 @@ guard 'shell' do
     puts res
     p res.scan('<')
   end
+
+  watch('search.py') do |m|
+    script = m[0]
+    res = `./#{script} USF USF sfdata.txt`
+    puts res
+  end
 end
