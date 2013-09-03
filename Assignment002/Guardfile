@@ -1,0 +1,9 @@
+guard 'shell' do
+  watch(/tagStripper.py/) do |m|
+    script = m[0]
+    # res = `./#{script} -r 'http://google.com'`
+    res = `./#{script} 'http://ranmocy.info'`
+    puts res
+    p res.scan('<')
+  end
+end

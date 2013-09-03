@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import re, getopt, sys, urllib
 # No other modules should be imported besides the above
 
@@ -7,17 +10,24 @@ import re, getopt, sys, urllib
 ### For example, inputting the string "<h2>here is some stuff</h2>"
 ### should return "here is some stuff"
 def regexStrip(instring) :
-    pass
+    return re.sub(r'<[^>]*>', r'', instring)
 
 ### This method should remove HTML tags "by hand"; that is, by
 ### iterating through the string without using the re module.
 ### It should have the same behavior as regexStrip.
 def handStrip(instring) :
-    pass
+    ans = ''
+    intag = False
+    for char in instring:
+        if char == '<' : intag = True; continue
+        if char == '>' : intag = False; continue
+        if intag: continue
+        ans += char
+    return ans
 
 ### here is a main for you to use. It demonstrates both the use of the
 ### getopt module and also exception handling. You shouldn't need to
-### change it. 
+### change it.
 
 if __name__ == '__main__' :
     try :
@@ -25,7 +35,7 @@ if __name__ == '__main__' :
     except getopt.GetoptError :
         print 'Usage: tagstripper.py {-r|-h} URL'
         sys.exit(0)
-        
+
     try :
         if options and '-r' in options[0] :
             print regexStrip(urllib.urlopen(args[0]).read())
@@ -34,7 +44,3 @@ if __name__ == '__main__' :
     except IOError :
         print 'Unable to open ' + args[0]
         sys.exit(0)
-
-
-
-
