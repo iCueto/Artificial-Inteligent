@@ -1,3 +1,5 @@
+import math
+import heapq
 
 ### this is a helper function that converts a string containing latitude or longitude
 ## represented as degrees.minutes.seconds (e.g. 37.47.44N) into a float.
@@ -7,9 +9,16 @@ def convertLatLong(str) :
     deg = float(deg) + (minutes/ 60.0)
     return deg
 
+def eu_dist(a, b):
+    "Euclidean distance between two vertices."
+    diffx = (convertLatLong(a.lat) - convertLatLong(b.lat))
+    diffy = (convertLatLong(a.longitude) - convertLatLong(b.longitude))
+    return math.sqrt(diffx**2 + diffy**2)
+
 class SearchQueue :
-    def __init__(self) :
+    def __init__(self, goal) :
         self.q = []
+        self.goal_vertex = goal
 
     def insert(self, item) :
         pass
@@ -20,12 +29,34 @@ class SearchQueue :
 
 ### you complete this.
 class BFSQueue(SearchQueue) :
-    pass
+
+    def insert(self, item):
+        self.q.append(item)
+        return True
+
+    def pop(self):
+        return self.q.pop(0)
 
 ### you complete this.
 class DFSQueue(SearchQueue) :
-    pass
+
+    def insert(self, item):
+        self.q.append(item)
+        return True
+
+    def pop(self):
+        return self.q.pop(-1)
 
 ### you complete this
 class AStarQueue(SearchQueue) :
-    pass
+
+    def insert(self, item):
+        current_vertex = item.vertex
+        g = item.cost
+        h = eu_dist(current_vertex, self.goal_vertex)
+        f = g + h
+        qitem = (f, item)
+        heapq.heappush(self.q, qitem)
+
+    def pop(self):
+        return heapq.heappop(self.q)[1]

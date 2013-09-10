@@ -7,9 +7,14 @@ guard 'shell' do
     p res.scan('<')
   end
 
-  watch('search.py') do |m|
-    script = m[0]
-    res = `./#{script} USF USF sfdata2.txt`
-    puts res
+  watch(%r{search.py|searchQueues.py}) do |m|
+    script = 'search.py'
+    puts `./#{script} USF USF sfdata2.txt`
+    puts `./#{script} USF GhirardelliSquare sfdata2.txt`
+    puts `./#{script} --search DFS USF GhirardelliSquare sfdata2.txt`
+    puts `./#{script} --search DFS -l 1 USF GhirardelliSquare sfdata2.txt`
+    puts `./#{script} --search DFS -i USF GhirardelliSquare sfdata2.txt`
+    puts `./#{script} --search DFS -l 1 USF GhirardelliSquare sfdata2.txt`
+    puts `./#{script} --search AStar USF GhirardelliSquare sfdata2.txt`
   end
 end

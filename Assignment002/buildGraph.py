@@ -42,7 +42,7 @@ class Graph:
 
     ### helper methods to construct edges and vertices. Use these in buildGraph.
     def createVertex(self, inStr) :
-        name, lat, longitude = inStr.split(" ",2)
+        name, lat, longitude = inStr.rstrip().split(" ",2)
         lat = lat.split("=")[1]
         longitude = longitude.split("=")[1]
         return Vertex(name, lat, longitude)
@@ -149,6 +149,8 @@ class Vertex:
         return hash(self.name)
     def __eq__(self, other) :
         return self.name == other.name
+    def __repr__(self) :
+        return self.name
 
 
 class Edge:
