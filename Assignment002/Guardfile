@@ -9,7 +9,7 @@ guard 'shell' do
 
   watch('search.py') do |m|
     script = m[0]
-    res = `./#{script} USF USF sfdata.txt`
+    res = `./#{script} USF USF sfdata2.txt`
     puts res
   end
 end
