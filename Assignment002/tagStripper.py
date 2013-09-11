@@ -21,8 +21,7 @@ def handStrip(instring) :
     for char in instring:
         if char == '<' : intag = True; continue
         if char == '>' : intag = False; continue
-        if intag: continue
-        ans += char
+        if not intag: ans += char
     return ans
 
 ### here is a main for you to use. It demonstrates both the use of the

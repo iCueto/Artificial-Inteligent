@@ -121,7 +121,7 @@ def search(queue, initialState, factory, goalTest, maxdepth=float('inf')) :
                 nodesEnqueued += 1
 
         closedList[current_state.vertex.name] = current_state
-        nodesExpanded += 1
+        nodesExpanded += len(successors)
 
 
     if not found:
