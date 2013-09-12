@@ -124,12 +124,16 @@ def search(queue, initialState, factory, goalTest, maxdepth=float('inf')) :
         nodesExpanded += len(successors)
 
 
+    print "nodes enqueued: %s" % nodesEnqueued
+    print "nodes dequeued: %s" % nodesDequeued
+    print "nodes expanded: %s" % nodesExpanded
+
     if not found:
         print "Search failed!"
         print "============================="
         return found
 
-    printSolution(current_state, nodesEnqueued, nodesDequeued, nodesExpanded)
+    printSolution(current_state)
 
     # Find the max depth in closedList
     max_depth = 0
@@ -142,7 +146,7 @@ def search(queue, initialState, factory, goalTest, maxdepth=float('inf')) :
 
 
 ### code for printing out a sequence of states that leads to a solution
-def printSolution(node, nodesEnqueued, nodesDequeued, nodesExpanded) :
+def printSolution(node) :
     print "Solution *** "
     print "cost: ", node.cost
     moves = []                  # NOTICE: here should be empty, otherwise the first node will be append twice!
@@ -154,9 +158,6 @@ def printSolution(node, nodesEnqueued, nodesDequeued, nodesExpanded) :
     moves.reverse()
     for move in moves :
         print "{:>20}: {:<5}".format(move, move.cost)
-    print "nodes enqueued: %s" % nodesEnqueued
-    print "nodes dequeued: %s" % nodesDequeued
-    print "nodes expanded: %s" % nodesExpanded
 
 
 ### usage: search --search=[BFS| DFS | AStar] {-l=depthLimit} {-i}
