@@ -9,11 +9,14 @@ def convertLatLong(str) :
     deg = float(deg) + (minutes/ 60.0)
     return deg
 
+def convertDegDis(deg):
+    return float(deg)*40076/360
+
 def eu_dist(a, b):
     "Euclidean distance between two vertices."
     diffx = (convertLatLong(a.lat) - convertLatLong(b.lat))
     diffy = (convertLatLong(a.longitude) - convertLatLong(b.longitude))
-    return math.sqrt(diffx**2 + diffy**2)
+    return convertDegDis(math.sqrt(diffx**2 + diffy**2))
 
 class SearchQueue :
     def __init__(self, goal) :

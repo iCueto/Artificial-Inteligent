@@ -1,7 +1,7 @@
 ## vertices
 CableCarMuseum lat=37.47.44N long=122.24.50W
 FishermansWharf lat=37.48.27N long=122.24.50W
-Pier39 lat=38.47.37N long=122.24.38W
+Pier39 lat=37.48.37N long=122.24.38W
 GhirardelliSquare lat=37.48.21N long=122.25.24W
 Alcatraz lat=37.49.36N long=122.25.23W
 GoldenGateBridge lat=37.49.05N long=122.48.40W
