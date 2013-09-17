@@ -18,10 +18,18 @@ def eu_dist(a, b):
     diffy = (convertLatLong(a.longitude) - convertLatLong(b.longitude))
     return convertDegDis(math.sqrt(diffx**2 + diffy**2))
 
+def f(current_state, goal_vertex):
+    current_vertex = current_state.vertex
+    g = current_state.cost
+    h = eu_dist(current_vertex, goal_vertex)
+    return g + h
+
+
 class SearchQueue :
-    def __init__(self, goal) :
+    def __init__(self, goal=None) :
         self.q = []
         self.goal_vertex = goal
+        self.mincost = float('inf')
 
     def insert(self, item) :
         pass
@@ -54,11 +62,7 @@ class DFSQueue(SearchQueue) :
 class AStarQueue(SearchQueue) :
 
     def insert(self, item):
-        current_vertex = item.vertex
-        g = item.cost
-        h = eu_dist(current_vertex, self.goal_vertex)
-        f = g + h
-        qitem = (f, item)
+        qitem = (f(item, self.goal_vertex), item)
         heapq.heappush(self.q, qitem)
 
     def pop(self):

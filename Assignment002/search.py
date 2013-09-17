@@ -89,7 +89,7 @@ def goalTest(current_node):
 ### It should print out the solution and the number of nodes enqueued, dequeued,
 ###  and expanded.
 
-def search(queue, initialState, factory, goalTest, maxdepth=float('inf')) :
+def search(queue, initialState, factory, goalTest, maxdepth=float('inf'), maxcost=float('inf')) :
     closedList = {}
     nodesEnqueued = 1
     nodesDequeued = 0
@@ -111,28 +111,29 @@ def search(queue, initialState, factory, goalTest, maxdepth=float('inf')) :
             found = True
             break
 
-        if current_state.depth < maxdepth:
-            successors = factory.successors(current_state)
-        else:
+        newf = searchQueues.f(current_state, goal_vertex)
+        if (current_state.depth >= maxdepth) or (newf > maxcost):
             successors = []
-        for succ_state in successors:
-            if not succ_state.vertex.name in closedList:
-                queue.insert(succ_state)
-                nodesEnqueued += 1
+            if newf < queue.mincost : queue.mincost = newf
+        else:
+            successors = factory.successors(current_state)
 
         closedList[current_state.vertex.name] = current_state
         nodesExpanded += len(successors)
 
-
-    print "nodes enqueued: %s" % nodesEnqueued
-    print "nodes dequeued: %s" % nodesDequeued
-    print "nodes expanded: %s" % nodesExpanded
+        for succ_state in successors:
+            if (not succ_state.vertex.name in closedList) or (closedList[succ_state.vertex.name] > succ_state):
+                queue.insert(succ_state)
+                nodesEnqueued += 1
 
     if not found:
         print "Search failed!"
         print "============================="
         return found
 
+    print "nodes enqueued: %s" % nodesEnqueued
+    print "nodes dequeued: %s" % nodesDequeued
+    print "nodes expanded: %s" % nodesExpanded
     printSolution(current_state)
 
     # Find the max depth in closedList
@@ -167,13 +168,13 @@ def printSolution(node) :
 ### if -i is provided, use an iterative deepening version (only applies
         ### to DFS, 10pts extra credit for IDA*)
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Search Algorithms: BFS, DFS, AStar")
+    parser = argparse.ArgumentParser(description="Search Algorithms: BFS, DFS, AStar, IDAStar")
 
     parser.add_argument('initialState', help='the init state')
     parser.add_argument('goal', help='the goal')
     parser.add_argument('infile', type=file, help='the input file')
 
-    parser.add_argument('--search', choices=['BFS', 'DFS', 'AStar'], default='BFS',
+    parser.add_argument('--search', choices=['BFS', 'DFS', 'AStar', 'IDAStar'], default='BFS',
                         help='the search algorithm, default is BFS.')
     parser.add_argument('-l', dest="depthLimit", type=int, default=float('inf'),
                         help='only search to the given depth.')
@@ -189,7 +190,7 @@ if __name__ == '__main__':
     init_state = Node(init_vertex, None, 0, 0)
     goal_name = args.goal       # [Hack] Global var for goalTest()
     goal_vertex = graph.vertex_list[goal_name]
-    queue = getattr(searchQueues, args.search + 'Queue')(goal_vertex)
+    if args.search != 'IDAStar': queue = getattr(searchQueues, args.search + 'Queue')(goal_vertex)
     factory = NodeFactory(graph)
 
     if args.search == 'DFS':
@@ -197,11 +198,20 @@ if __name__ == '__main__':
             print "Searching from %s to %s by %s iteratively with %s limit..." % (args.initialState, args.goal, args.search, args.depthLimit)
             depth_limit = min(args.depthLimit, len(graph.vertex_list))
             for depth_limit in range(0, depth_limit):
-                print "Now trying with limit %s..." % (depth_limit)
+                print "Now trying with depth limit %s..." % (depth_limit)
                 if search(queue, init_state, factory, goalTest, depth_limit): break
         else:
             print "Searching from %s to %s by %s with depth limit %s..." % (args.initialState, args.goal, args.search, args.depthLimit)
             search(queue, init_state, factory, goalTest, maxdepth=args.depthLimit)
+    elif args.search == 'IDAStar':
+        f = searchQueues.f(init_state, goal_vertex)
+        print "Searching from %s to %s by %s with depth limit %s and cost limit %f..." % (args.initialState, args.goal, args.search, args.depthLimit, f)
+        while True:
+            print "Now trying with cost limit %f..." % f
+            queue = searchQueues.DFSQueue(goal_vertex)
+            res = search(queue, init_state, factory, goalTest, maxdepth=args.depthLimit, maxcost=f)
+            if (res) or (queue.mincost == float('inf')): break
+            f = queue.mincost
     else:
         print "Searching from %s to %s by %s..." % (args.initialState, args.goal, args.search)
         search(queue, init_state, factory, goalTest)

@@ -16,5 +16,6 @@ guard 'shell' do
     puts `./#{script} --search DFS -i USF GhirardelliSquare sfdata2.txt`
     puts `./#{script} --search DFS -l 1 USF GhirardelliSquare sfdata2.txt`
     puts `./#{script} --search AStar USF GhirardelliSquare sfdata2.txt`
+    puts `./#{script} --search IDAStar USF GhirardelliSquare sfdata2.txt`
   end
 end
