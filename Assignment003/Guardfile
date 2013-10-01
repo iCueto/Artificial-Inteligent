@@ -1,0 +1,35 @@
+guard 'shell', :all_on_start => true do
+  watch(/^(wsheng3.*)\.py$/) do |m|
+    name = m[1]
+    res = `python gameplay.py -t320 #{name} default_greedy`
+    msg = "=" + name + "="*20 + "\n" + ' ' + res.split("\n").last
+    n msg, name, :success
+    msg
+  end
+  # watch(/^players\/(.*).py$/) do |m|
+  #   name = m[1]
+  #   puts "=" + name + "="*20
+
+  #   players = Dir["players/*.py"].map{ |p| p.gsub(/\.py$/, '') }
+
+  #   wins = []
+  #   lose = []
+  #   ties = []
+
+  #   (players - [name]).each do |player|
+  #     res = `PYTHONPATH=players python gameplay.py -t320 #{name} #{player}`.split("\n").last
+  #     puts ' ' + res
+
+  #     if not(/(TIE)/.match(res).nil?) # Tie
+  #       ties.push(player)
+  #     elsif (/(.*) Wins .*/.match(res)[1] == name) # Win
+  #       wins.push(player)
+  #     else                      # Lose
+  #       lose.push(player)
+  #     end
+  #   end
+
+  #   puts " " + '-'*20
+  #   puts " #{name} wins #{wins.size} times, lose #{lose.size}, ties #{ties.size}.\n\n"
+  # end
+end
