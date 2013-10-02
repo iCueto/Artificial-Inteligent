@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import sys
 import time
 import getopt
@@ -152,6 +150,8 @@ def playGame(p1, p2, verbose = False, t = 128):
     (currColor, nextColor) = ("B", "W")
     p1time = t
     p2time = t
+    p1realTime = t*2 # gives a little extra time to each player
+    p2realTime = t*2
     if verbose:
         printBoard(board)
         print "START: Clock remaining: %s=%f, %s=%f" %(currColor, p1time, nextColor, p2time)
@@ -161,7 +161,9 @@ def playGame(p1, p2, verbose = False, t = 128):
         nextMove = p1(tmpBoard, currColor, p1time)
         t2 = time.time()
         p1time = p1time - (t2 - t1)
-        if (p1time < 0):
+        p1realTime = p1realTime - (t2 - t1)
+        #if p1time < 0:
+        if (p1realTime < 0):
             if currColor == "B":
                 return (0,64, board, "Timeout")
             else:
@@ -176,6 +178,7 @@ def playGame(p1, p2, verbose = False, t = 128):
 
         (p1, p2) = (p2, p1)
         (p1time, p2time) = (p2time, p1time)
+        (p1realTime, p2realTime) = (p2realTime, p1realTime)
         (currColor, nextColor) = (nextColor, currColor)
         if verbose:
             printBoard(board)
@@ -219,13 +222,15 @@ if __name__ == "__main__":
 
     res = playGame(p1, p2, verbose, clockTime)
     printBoard(res[2])
-    if ((res[0] > res[1]) and reversed != "R") or ((res[0] < res[1]) and reversed == "R"):
-        print "%s Wins %s Loses (%d to %d)" %(args[0], args[1], res[0], res[1]),
-    elif ((res[0] < res[1]) and reversed != "R") or ((res[0] > res[1]) and reversed == "R"):
-        print "%s Wins %s Loses (%d to %d)" %(args[1], args[0], res[1], res[0]),
-    else:
-        print "TIE %s, %s, (%d to %d)" % (args[1], args[0], res[1], res[0])
     if (len(res) == 4):
         print res[3]
+        if (res[0] > res[1]):
+            print "%s Wins %s Loses (%d to %d)" %(args[0], args[1], res[0], res[1])
+        else:
+            print "%s Wins %s Loses (%d to %d)" %(args[1], args[0], res[1], res[0])
+    elif ((res[0] > res[1]) and reversed != "R") or ((res[0] < res[1]) and reversed == "R"):
+        print "%s Wins %s Loses (%d to %d)" %(args[0], args[1], res[0], res[1])
+    elif ((res[0] < res[1]) and reversed != "R") or ((res[0] > res[1]) and reversed == "R"):
+        print "%s Wins %s Loses (%d to %d)" %(args[1], args[0], res[1], res[0])
     else:
-        print ""
+        print "TIE %s, %s, (%d to %d)" % (args[1], args[0], res[1], res[0])

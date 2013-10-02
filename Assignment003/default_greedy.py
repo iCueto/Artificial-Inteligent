@@ -15,7 +15,7 @@ def betterThan(val1, val2, color, reversed):
     if color == "W":
         retVal = val1 > val2
     else:
-        retVal =  val2 < val1
+        retVal =  val2 > val1
     if reversed:
         return not retVal
     else:
