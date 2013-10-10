@@ -27,33 +27,33 @@ value_board = [[16, -6,  4,  3,  3,  4, -6, 16],
                [-6,-12, -4, -3, -3, -4,-12, -6],
                [16, -6,  4,  3,  3,  4, -6, 16]]
 vb = [[99, -8, 8,  6,  6, 8, -8,99],
-             [-8,-24,  -4,  -3,  -3,  -4,-24, -8],
-             [8,  -4,  7,  4,  4,  7,  -4, 8],
-             [6,  -3,  4,  0,  0,  4,  -3,  6],
-             [6,  -3,  4,  0,  0,  4,  -3,  6],
-             [8,  -4,  7,  4,  4,  7,  -4, 8],
-             [-8,-24,  -4,  -3,  -3,  -4,-24, -8],
-             [99, -8, 8,  6,  6, 8, -8,99]]
+      [-8,-24,  -4,  -3,  -3,  -4,-24, -8],
+      [8,  -4,  7,  4,  4,  7,  -4, 8],
+      [6,  -3,  4,  0,  0,  4,  -3,  6],
+      [6,  -3,  4,  0,  0,  4,  -3,  6],
+      [8,  -4,  7,  4,  4,  7,  -4, 8],
+      [-8,-24,  -4,  -3,  -3,  -4,-24, -8],
+      [99, -8, 8,  6,  6, 8, -8,99]]
 #value_board = vb
 
 ## greedy
 def get_value(board):
     v = 0
-    for i in range(board_size):
-        for j in range(board_size):
+    for i in range(BOARD_SIZE):
+        for j in range(BOARD_SIZE):
             if board[i][j] == 'b':
                 v += value_board[i][j]
             else:
                 v -= value_board[i][j]
     return v
 
-def betterthan(val1, val2, color, reversed):
+def betterThan(val1, val2, color, reversed):
     if (color == 'b') == (not reversed):
         return val2 > val1
     else:
         return val2 < val1
 
-def greedymove(board, color, time, reversed = false):
+def greedyMove(board, color, time, reversed = False):
     moves = []
     for i in range(8):
         for j in range(8):
@@ -61,12 +61,12 @@ def greedymove(board, color, time, reversed = false):
                 moves.append((i,j))
     if len(moves) == 0:
         return "pass"
-    best = none
+    best = None
     for move in moves:
         newboard = deepcopy(board)
-        god.domove(newboard,color,move)
+        god.doMove(newboard,color,move)
         moveval = get_value(newboard)
-        if best == none or betterthan(moveval, best, color, reversed):
+        if best == None or betterThan(moveval, best, color, reversed):
             bestmove = move
             best = moveval
     return bestmove
@@ -74,14 +74,14 @@ def greedymove(board, color, time, reversed = false):
 
 
 ## treenode
-class treenode:
-    def __init__(self, parent=none):
+class TreeNode:
+    def __init__(self, parent=None):
         if parent:
             self.board = deepcopy(parent.board)
             self.depth = parent.depth - 1
             self.color = god.opponent(parent.color)
             self.reversed = parent.reversed
-        self.nextmove = none
+        self.nextmove = None
         #self.children = []
     def search_children(self, node, board):
         for child in node.children:
