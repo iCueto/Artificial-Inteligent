@@ -5,12 +5,15 @@ import random
 import time as timelib
 from copy import deepcopy
 import os
+import math
 
 BOARD_SIZE = 8
-BEGIN_DEPTH = 60
-MAX_DEPTH = 3
+BOARD_DEPTH = BOARD_SIZE*BOARD_SIZE-4
+MIN_DEPTH = 2
+MAX_DEPTH = 10
 # in second
-ROUND_TIME_LIMIT = 300/((BOARD_SIZE*BOARD_SIZE-4)/2)
+ROUND_TIME_LIMIT = 300/(BOARD_DEPTH/2)
+
 if os.getenv('VERBOSE'):
     VERBOSE = True
 else:
@@ -28,29 +31,6 @@ value_board = [[16, -6,  4,  3,  3,  4, -6, 16],
                [4,  -4,  3,  2,  2,  3, -4,  4],
                [-6,-12, -4, -3, -3, -4,-12, -6],
                [16, -6,  4,  3,  3,  4, -6, 16]]
-vb = [[99, -8, 8,  6,  6, 8, -8,99],
-      [-8,-24,  -4,  -3,  -3,  -4,-24, -8],
-      [8,  -4,  7,  4,  4,  7,  -4, 8],
-      [6,  -3,  4,  0,  0,  4,  -3,  6],
-      [6,  -3,  4,  0,  0,  4,  -3,  6],
-      [8,  -4,  7,  4,  4,  7,  -4, 8],
-      [-8,-24,  -4,  -3,  -3,  -4,-24, -8],
-      [99, -8, 8,  6,  6, 8, -8,99]]
-
-#value_board = vb
-
-## random
-# def randomMove(board, color, time):
-#     moves = []
-#     for i in range(8):
-#         for j in range(8):
-#             if god.valid(board, color, (i,j)):
-#                 moves.append((i,j))
-#     if len(moves) == 0:
-#         return "pass"
-#     bestMove = moves[random.randint(0,len(moves) - 1)]
-#     return bestMove
-
 
 ## greedy
 def get_value(board):
@@ -69,26 +49,6 @@ def betterThan(val1, val2, color, reversed):
     else:
         return val1 < val2
 
-# def greedyMove(board, color, time, reversed = False):
-#     moves = []
-#     for i in range(8):
-#         for j in range(8):
-#             if god.valid(board, color, (i,j)):
-#                 moves.append((i,j))
-#     if len(moves) == 0:
-#         return "pass"
-#     best = None
-#     for move in moves:
-#         newboard = deepcopy(board)
-#         god.doMove(newboard,color,move)
-#         moveval = get_value(newboard)
-#         if best == None or betterThan(moveval, best, color, reversed):
-#             bestmove = move
-#             best = moveval
-#     return bestmove
-
-
-
 ## treenode
 class TreeNode:
     def __init__(self, parent=None):
@@ -98,12 +58,6 @@ class TreeNode:
             self.color = god.opponent(parent.color)
             self.reversed = parent.reversed
         self.nextmove = None
-        #self.children = []
-    # def search_children(self, node, board):
-    #     for child in node.children:
-    #         if child.board == board:
-    #             return child
-    #     return None
     def validMoves(self):
         moves = []
         for i in range(BOARD_SIZE):
@@ -113,7 +67,7 @@ class TreeNode:
         return moves
     def value(self):
         res = get_value(self.board)
-        if (self.color == 'W') != (self.reversed): res = -res
+        #if (self.color == 'W') != (self.reversed): res = -res
         return res
     def end_value(self):
         s = god.score(self.board)
@@ -142,11 +96,7 @@ def max_depth(board):
 # Alpha-beta pruning
 # Return the expected value in [alpha, beta]
 def alpha_beta_search(node, alpha, beta, timeout):
-    #if VERBOSE: print "===Searching in %f..%f of %d" % (alpha, beta, node.depth)
-
-    # if timeout():
-    #     if VERBOSE: print "==Timeout return in %d" % (node.depth)
-    #     return node.value() # Timeout do nothing
+    if timeout(): return node.value() # Timeout do nothing
 
     if (node.depth == 0):
         if (god.gameOver(node.board)):
@@ -155,8 +105,7 @@ def alpha_beta_search(node, alpha, beta, timeout):
             return node.value()
 
     nextMoves = node.validMoves()
-    # Game not end, we can pass on.
-    if (len(nextMoves) == 0): nextMoves = ['pass']
+    if (len(nextMoves) == 0): nextMoves = ['pass'] # Game not end, we can pass on.
 
     for pos in nextMoves:
         # init next child node
@@ -185,59 +134,27 @@ def alpha_beta_search(node, alpha, beta, timeout):
         return alpha
 
 
-# from multiprocessing import Process
-# import os
-
-# def info(title):
-#     print(title)
-#     print('module name:', __name__)
-#     if hasattr(os, 'getppid'):  # only available on Unix
-#         print('parent process:', os.getppid())
-#     print('process id:', os.getpid())
-# def f(name):
-#     info('function f')
-#     a = 0
-#     for i in range(1,10**7):
-#         a = a+1
-#     print ('hello', name)
-# def run():
-#     p1 = Process(target=f, args=('bob',))
-#     p2 = Process(target=f, args=('bob',))
-#     p3 = Process(target=f, args=('bob',))
-#     p4 = Process(target=f, args=('bob',))
-#     p1.start()
-#     p2.start()
-#     p3.start()
-#     p4.start()
-#     p4.join()
-
-
 ## Main function
 def nextMove(board, color, time, reversed = False):
     # Init
     beginTime = timelib.time()  # The beginning of this round
     root = TreeNode()           # root node
     root.board = board
-    root.depth = min(max_depth(root.board), MAX_DEPTH)
+    d = max_depth(root.board)
+    limits = math.floor(float(BOARD_DEPTH-d)/(BOARD_DEPTH-MAX_DEPTH)*(MAX_DEPTH-MIN_DEPTH))+MIN_DEPTH
+    if VERBOSE: print "limits %f" % limits
+    root.depth = min(d, limits)
     root.color = color
     root.reversed = reversed
 
     # Begin search
     if VERBOSE: print "==========Searching in depth %d" % (root.depth)
 
-    # use greedy at the beginning
-    # if root.depth > BEGIN_DEPTH :
-    #     if VERBOSE: print 'Using random in %d' % root.depth
-    #     return randomMove(board, color, time)
-
     # then use alpha-beta pruning search
-    if VERBOSE: print 'Using alpha-beta in %d' % root.depth
     timeout = lambda : ((timelib.time() - beginTime) >= ROUND_TIME_LIMIT) or ((timelib.time() - beginTime) >= time*0.8)
 
-
     nextMoves = root.validMoves()
-    if (len(nextMoves) == 0) and (not god.gameOver(root.board)):
-        return 'pass'
+    if len(nextMoves) == 0: return 'pass'
 
     best = root.worst()
     for pos in nextMoves:
@@ -252,8 +169,6 @@ def nextMove(board, color, time, reversed = False):
             move = pos
             if VERBOSE: print "===Update best %f with %s in %d", (best, pos, root.depth)
 
-    # Output
-    if VERBOSE: print 'alpha-beta : %f-%s' % (best, (move,))
     return move
 
 # Reversed
