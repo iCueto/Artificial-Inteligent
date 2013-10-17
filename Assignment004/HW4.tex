@@ -1,0 +1,148 @@
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+\usepackage{./../usfassignment}
+\settitle{Assignment 4}
+\setauthor{Wanzhang Sheng}
+\setcourse{CS662: Artificial Intelligent}
+
+\begin{document}
+
+\maketitle % Print the title
+
+% -----------------------------------------------------------------------------
+% PROBLEM 1
+% -----------------------------------------------------------------------------
+\section{}
+
+\begin{fancyquotes}
+  Write the following sentences in First-order logic
+
+  \begin{itemize}
+    \item Any mortal holding the Ring will be tempted.
+    \item Frodo is a hobbit.
+    \item Hobbits are mortals.
+    \item Anyone who is tempted will put on the Ring.
+    \item If Frodo is not holding the ring, then Gandalf is holding it.
+    \item Gandalf is not holding the Ring.
+  \end{itemize}
+
+  You should use the following predicates: mortal(x), holding(x,y),
+  tempted(x), hobbit(x), putOn(x,y).
+\end{fancyquotes}
+
+\begin{itemize}
+\item $\forall x, \text{mortal}(x) \land \text{tempted}(x)$
+\item $\text{hobbit}(\text{Frodo})$
+\item $\forall x, \text{hobbit}(x) \land \text{mortal}(x)$
+\item $\forall x, \text{tempted}(x) \land \text{putOn}(x,\text{Ring})$
+\item $\text{holding}(\text{Frodo}, \text{Ring}) \lor
+  \text{holding}(\text{Gandalf}, \text{Ring})$
+\item $\lnot \text{holding}(\text{Gandalf}, \text{Ring})$
+\end{itemize}
+
+\pagebreak
+
+% -----------------------------------------------------------------------------
+% PROBLEM 2
+% -----------------------------------------------------------------------------
+\section{}
+
+\begin{fancyquotes}
+  Show that Frodo has put on the Ring using forward chaining. On each
+  step, show the facts added to the KB and the list of substitutions.
+\end{fancyquotes}
+
+
+\pagebreak
+
+% -----------------------------------------------------------------------------
+% PROBLEM 3
+% -----------------------------------------------------------------------------
+\section{}
+
+\begin{fancyquotes}
+  Show that Frodo has put on the Ring using backward chaining. Begin
+  with putOn(Frodo, Ring) and work backward. At each step, show the
+  queue of active goals.
+\end{fancyquotes}
+
+
+\pagebreak
+
+% -----------------------------------------------------------------------------
+% PROBLEM 4
+% -----------------------------------------------------------------------------
+\section{}
+
+\begin{fancyquotes}
+  Use resolution with refutation to show that Frodo has put on the
+  Ring. Show each step of the proof. You will first need to convert
+  each of the sentences to CNF.
+
+  Add ~putOn(Frodo, Ring) to the KB and derive a contradiction (recall
+  “~” is for negation).
+\end{fancyquotes}
+
+\pagebreak
+
+
+% -----------------------------------------------------------------------------
+% PROBLEM 5
+% -----------------------------------------------------------------------------
+\section{}
+
+\begin{fancyquotes}
+  Work problem 13.8, parts a-d, from the R\&N textbook.
+\end{fancyquotes}
+
+\pagebreak
+
+
+% -----------------------------------------------------------------------------
+% PROBLEM 6
+% -----------------------------------------------------------------------------
+\section{}
+
+\begin{fancyquotes}
+  In the days before Canvas, Joe Student comes to his professor and
+  tells her that he forgot to bring his project to hand in, and wants
+  to turn it in tomorrow without penalty. The professor knows that 1
+  time in 100, a student completes their assignment and forgets to
+  bring it. The professor also knows that 50\% of the time, a student
+  who hasn't completed the assignment will say that they forgot
+  it. Finally, the professor believes that 90\% of the students in the
+  class completed the assignment.
+
+  What is the probability that the student actually completed the
+  assignment?
+\end{fancyquotes}
+
+\pagebreak
+
+
+% -----------------------------------------------------------------------------
+% PROBLEM 7
+% -----------------------------------------------------------------------------
+\section{}
+
+\begin{fancyquotes}
+  Work problem 23.3, parts a-d, from the R\&N textbook. Part C is
+  asking about ambiguity as discussed on p.905.
+\end{fancyquotes}
+
+\pagebreak
+
+
+% -----------------------------------------------------------------------------
+% PROBLEM 8
+% -----------------------------------------------------------------------------
+\section{}
+
+\begin{fancyquotes}
+  Work problem 23.6 from the R\&N textbook; be sure to read and answer
+  the entire question up to the start of problem 23.7.
+\end{fancyquotes}
+
+\pagebreak
+
+
+\end{document}
