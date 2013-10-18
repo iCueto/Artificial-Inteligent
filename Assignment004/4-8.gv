@@ -1,0 +1,116 @@
+graph "" {
+        // node [fontsize=10,width=".2", height=".2", margin=0];
+        // graph[fontsize=12];
+
+        1 [label="S"] ;
+        2 [label="NP"] ;
+        3 [label="VP"] ;
+        4 [label="VP"] ;
+        5 [label="VP"] ;
+        6 [label="PP"] ;
+        7 [label="Prep"] ;
+        8 [label="Pronoun"] ;
+        9 [label="Verb"] ;
+        10 [label="Adv"] ;
+        11 [label="NP"] ;
+        12 [label="Article"] ;
+        13 [label="Noun"] ;
+        14 [label="Someone"] ;
+        15 [label="walked"] ;
+        16 [label="slowly"] ;
+        17 [label="to"] ;
+        18 [label="the"] ;
+        19 [label="supermarket"] ;
+        
+        1 ;
+        1 -- 2 ;
+        2 -- 8 ;
+        
+        1 -- 3 ;
+        3 -- 4 ;
+        4 -- 5 ;
+        5 -- 9 ;
+
+        4 -- 10 ;
+
+        3 -- 6 ;
+        6 -- 7 ;
+
+        6 -- 11 ;
+        11 -- 12 ;
+        11 -- 13 ;
+
+        8 -- 14 ;
+        9 -- 15 ;
+        10 -- 16 ;
+        7 -- 17 ;
+        12 -- 18 ;
+        13 -- 19 ;
+}
+
+graph "" {
+
+        S:0 -- NP:1 ;
+        NP -- Pronoun ;
+        Pronoun -- Someone ;
+
+        S -- VP ;
+        VP -- Verb ;
+        Verb -- walked ;
+
+        VP -- Vmod ;
+        Vmod -- Adv ;
+        Adv -- slowly ;
+
+        Vmod -- Vmod2 ;
+        Vmod2 -- Adv2 ;
+        Adv2 -- PP ;
+        PP -- Prep ;
+        Prep -- to ;
+
+        PP -- NP2 ;
+        NP2 -- Article ;
+        Article -- the ;
+        NP2 -- NP3 ;
+        NP3 -- Noun ;
+        Noun -- supermarket ;
+
+        Vmod2 [label="Vmod"] ;
+        Adv2 [label="Adv"] ;
+        NP2 [label="NP"] ;
+        NP3 [label="NP"] ;
+
+}
+
+graph "" {
+        S -- NP ;
+        NP -- Pronoun ;
+        Pronoun -- Someone ;
+
+        S -- VP ;
+        VP -- Verb ;
+        Verb -- walked ;
+
+        VP -- Adv ;
+        Adv -- Adv2 ;
+        Adv2 -- slowly ;
+
+        Adv -- Adv3 ;
+        Adv3 -- PP ;
+        PP -- Prep ;
+        Prep -- to ;
+
+        PP -- NP2 ;
+        NP2 -- Article ;
+        Article -- the ;
+        
+        NP2 -- NP3 ;
+        NP3 -- Noun ;
+        Noun -- supermarket ;
+
+        Adv2 [label="Adv"] ;
+        Adv3 [label="Adv"] ;
+        NP2 [label="NP"] ;
+        NP3 [label="NP"] ;
+
+}
