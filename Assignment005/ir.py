@@ -93,6 +93,7 @@ class Category(object):
         return self._tfidf
 
 
+
 class Article(object):
     """
     Article Class stores the category (newsgroup name) of an article,
@@ -117,14 +118,16 @@ class Article(object):
         Compute TFIDF for this article.
         """
         self._tfidf = {}
+
         for word, tf in self._tf.iteritems():
             c = category_by_name(self._category)
             idf = c._idf[word]
-            # TODO is corpus means category DF?
-            self._tfidf[word] = float(tf) * math.log(len(c._articles)/float(idf))
+            self._tfidf[word] = float(tf) * math.log(corpus()/float(idf))
         return self._tfidf
 
 
+
+categories = {}
 def category_by_name(name):
     """
     return category by name
@@ -134,11 +137,17 @@ def category_by_name(name):
     return categories[name]
 
 
-def read_file(category, filename):
+def corpus():
     """
-    Create article from file.
+    return the size of all articles
+    """
+    return sum([len(c._articles) for c in categories])
+
+
+def read_file(filename):
+    """
+    Return raw content from file.
     Arguments:
-    - `category`: category of the file
     - `filename`: the input file path
     """
     try:
@@ -149,7 +158,19 @@ def read_file(category, filename):
     finally:
         infile.close
 
-    return Article(category, instr)
+    return instr
+
+
+def save():
+    """
+    """
+    return 'todo'
+
+
+def load():
+    """
+    """
+    return 'todo'
 
 
 def computeDocumentFrequency(category_name):
@@ -161,9 +182,24 @@ def computeDocumentFrequency(category_name):
 
 def cosineSimilarity(tfidf1, tfidf2):
     """
-    Compute similarity between category1 and category2
+    Compute similarity between two tfidfs.
     """
-    return 'todo'
+    l1 = math.sqrt(sum([f*f for word,f in tfidf1.iteritems()]))
+    l2 = math.sqrt(sum([f*f for word,f in tfidf2.iteritems()]))
+    common_words = set.intersection(set(tfidf1.keys()), set(tfidf2.keys()))
+    s = sum([tfidf1[word]*tfidf2[word] for word in common_words])
+    return s/(l1*l2)
+
+
+def classify(filename):
+    """
+    classify the given file with all categories.
+    Arguments:
+    - `filename`: the given file path
+    """
+    a = Article(name, read_file(path))
+    sim = [cosineSimilarity(c._tfidf, a._tf) for c in categories]
+    return max(sim)
 
 
 def test_articles_key_with_pattern(articles):
@@ -180,12 +216,10 @@ if __name__ == '__main__' :
     Ranmocy Sheng, Copyright 2013, GPL
     """)
     parser.add_argument('source_path', help='The source dir contains categories.')
-    # parser.add_argument('--nostrip', dest='stripPunc', action='store_false',
-    #                    help='if --nostrip, don\'t strip punctuation')
-    # parser.add_argument('--noConvert', dest='toLower', action='store_false',
-    #                    help='if --noConvert, don\'t convert everything to lower case')
-    # parser.add_argument('--outfile', dest='outfile',
-    #                    help='if --pfile=outfile, pickle the resulting dictionary and store it in outfile. otherwise, print it to standard out.')
+    parser.add_argument('--outfile', dest='outfile',
+                        help='pickle the resulting dictionary and store it in outfile.')
+    parser.add_argument('--target', dest='file',
+                        help='pickle the resulting dictionary and store it in outfile.')
 
     args = parser.parse_args()
 
@@ -205,7 +239,7 @@ if __name__ == '__main__' :
         for f in listdir(join(args.source_path, name)):
             path = join(args.source_path, name, f)
             if isfile(path):
-                c._articles.append(read_file(name, path))
+                c._articles.append(Article(name, read_file(path)))
 
 
     # compute IDF
@@ -225,3 +259,7 @@ if __name__ == '__main__' :
     for name, c in categories.iteritems():
         print "Compute TFIDF of category %s" % name
         c.update_tfidf()
+
+    # compute similarity
+    print cosineSimilarity(category_by_name('comp.graphics')._tfidf,
+                           category_by_name('sci.crypt')._tfidf)
