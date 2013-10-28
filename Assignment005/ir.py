@@ -60,38 +60,36 @@ class Category(object):
         """
         self._name = name
         self._articles = []
-        self._df = {}
+        self._idf = {}
         self._tfidf = {}
 
     def update_df(self):
         """
         Return DF of words occurs in this category.
         """
-        self._df = {}
+        self._idf = {}
         for article in self._articles:
             for word, freq in article._tf.iteritems():
-                if word in self._df:
-                    self._df[word] += 1
+                if word in self._idf:
+                    self._idf[word] += 1
                 else:
-                    self._df[word] = 1
-        return self._df
+                    self._idf[word] = 1
+        return self._idf
 
     def update_tfidf(self):
         """
         Update highest TFIDF words.
         """
-        self._tfidf = {}
+        dictlist = sorted(self._idf.keys(), key=self._idf.__getitem__)
+        dictlist = dictlist[-HIGHEST_SCORE_WORDS:]
+        self._tfidf = { word: 0 for word in dictlist }
+
         for article in self._articles:
             for word, a_tfidf in article._tfidf.iteritems():
                 if word in self._tfidf:
                     self._tfidf[word] += a_tfidf
-                else:
-                    self._tfidf[word] = a_tfidf
 
-        dictlist = sorted(self._tfidf.keys(), key=self._tfidf.__getitem__)
-        dictlist = dictlist[-HIGHEST_SCORE_WORDS:]
-        self._tfidf = { word: self._tfidf[word] for word in dictlist }
-
+        # TODO pickle
         return self._tfidf
 
 
@@ -120,10 +118,10 @@ class Article(object):
         """
         self._tfidf = {}
         for word, tf in self._tf.iteritems():
-            dfs = category_by_name(self._category)._df
-            df = dfs[word]
+            c = category_by_name(self._category)
+            idf = c._idf[word]
             # TODO is corpus means category DF?
-            self._tfidf[word] = float(tf) * math.log(len(dfs)/float(df))
+            self._tfidf[word] = float(tf) * math.log(len(c._articles)/float(idf))
         return self._tfidf
 
 
@@ -159,6 +157,13 @@ def computeDocumentFrequency(category_name):
     Compute DF by category_name.
     """
     return category_by_name(category_name).update_df()
+
+
+def cosineSimilarity(tfidf1, tfidf2):
+    """
+    Compute similarity between category1 and category2
+    """
+    return 'todo'
 
 
 def test_articles_key_with_pattern(articles):
