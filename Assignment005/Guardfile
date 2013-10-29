@@ -1,7 +1,0 @@
-guard 'shell' do
-  watch(/(.*.py)/) do |m|
-    res = `python #{m[1]} .`
-    puts res
-    n m[1], 'AI HW5', ($?==0) ? :success : :failure
-  end
-end

@@ -1,0 +1,2 @@
+global VERBOSE
+VERBOSE = False
