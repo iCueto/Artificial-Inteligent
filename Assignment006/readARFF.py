@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+
 import cPickle as pickle
-import sys
+import sys, string
 
 ### read in data from an ARFF file and return the following data structures:
 ### A dict that maps an attribute index to a dictionary mapping attribute names to either:
@@ -18,16 +20,16 @@ def readArff(filehandle) :
     #this assumes the target class attribute is listed last in the ARFF file!!
     for index in range(len(attribLines)-1) :
         line = attribLines[index]
-        chunks = line.split(' ',2)
+        chunks = [chunk.strip() for chunk in line.split(' ',2)]
         if chunks[2].startswith('{') : ### this is a nominal attribute
-            attributes[index] = {chunks[1] : [item for item in chunks[2].strip('\n{}').split(',')]}
+            attributes[index] = {chunks[1] : [item.strip() for item in chunks[2].strip('\n{} ').split(',')]}
         else : ## this is string or numeric
             attributes[index]= {chunks[1] : chunks[2]}
 
     ### data will be lines that don't begin with a '@'
     dataLines = [line.strip() for line in lines if not line.startswith('@')]
     for line in dataLines :
-        data.append(line.split(','))
+        data.append(map(string.strip, line.split(',')))
     return (attributes, data)
 
 

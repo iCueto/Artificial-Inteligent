@@ -1,11 +1,23 @@
-import sys, math, re
+#!/usr/bin/env python
+
+import sys, math, re, itertools, argparse, random
 import cPickle as pickle
 import readARFF
 
+
 ### takes as input a list of class labels. Returns a float
-### indicating the entropy in this data.
-def entropy(data) :
-    #you write this
+### indicating the entropy in this data. Input:
+###     [class1, class2, class3, ..., classn]
+def entropy(results):
+    ans = {key: 0 for key in results}
+    for d in results: ans[d] += 1
+    e = 0
+    size = len(results)
+    for key, freq in ans.iteritems():
+        p = float(freq)/size
+        e += -p*math.log(p, 2)
+    return e
+
 
 ### Compute remainder - this is the amount of entropy left in the data after
 ### we split on a particular attribute. Let's assume the input data is of
@@ -28,33 +40,63 @@ def remainder(data) :
 ### and attributes is a list [a1,a2,...,an] of corresponding attribute values
 def selectAttribute(data, attributes) :
     #you write this
+    min_rem = float('inf')
+    min_index = -1
+    for index, attr in attributes.iteritems():
+        rem = remainder([(d[index], d[-1]) for d in data])
+        if rem < min_rem:
+            min_rem = rem
+            min_index = index
+    return min_index
+
+
+def ZeroR(data):
+    values = sorted([d[-1] for d in data])
+    return max([key for key,freq in itertools.groupby(values)])
+
 
 ### a TreeNode is an object that has either:
 ### 1. An attribute to be tested and a set of children; one for each possible
 ### value of the attribute.
 ### 2. A value (if it is a leaf in a tree)
 class TreeNode :
-    def __init__(self, attribute, value) :
+    def __init__(self, attribute=None, value=None, children=None, defaultValue=None) :
         self.attribute = attribute
         self.value = value
-        self.children = {}
+        if children:
+            self.children = children
+            if defaultValue == None:
+                self.defaultValue = ZeroR(self.children)
+            else:
+                self.defaultValue = defaultValue
+        else:
+            self.children = []
+            self.defaultValue = defaultValue
 
-    def __repr__(self) :
-        if self.attribute :
-            return self.attribute
+    def __repr__(self, indent='') :
+        if not self.isLeaf():
+            children_repr = ''
+            for value, child in self.children.iteritems():
+                children_repr += child.__repr__(indent=indent+'| ')
+            return "%s%s:%d\n%s" % (indent, self.value, self.attribute, children_repr)
         else :
-            return self.value
+            return "%s%s\n" % (indent, self.value)
 
     ### a node with no children is a leaf
     def isLeaf(self) :
-        return self.children == {}
+        return self.attribute == None
+
 
     ### return the value for the given data
     ### the input will be:
     ### data - an object to classify - [v1, v2, ..., vn]
     ### attributes - the attribute dictionary
     def classify(self, data, attributes) :
-       #you write this
+        if not self.isLeaf():
+            return self.children[data[self.attribute]].classify(data, attributes)
+        else:
+            return self.defaultValue
+
 
 ### a tree is simply a data structure composed of nodes (of type TreeNode).
 ### The root of the tree
@@ -73,5 +115,57 @@ class TreeNode :
 ### assume: input looks like this:
 ### dataset: [[v1, v2, ..., vn, c1], [v1,v2, ..., c2] ... ]
 ### attributes: [a1,a2,...,an] }
-def makeTree(dataset, alist, attributes, defaultValue) :
-    # you write; See assignment & notes for description of algorithm
+def makeTree(data, attributes, value=None, defaultValue=None) :
+    # If no more available attr to test. Or entropy is 0
+    e = entropy([d[-1] for d in data])
+    if (len(attributes) == 0) or (e == 0): return TreeNode(value=value, children=data)
+
+    choice = selectAttribute(data, attributes) # Choice the best attr for test
+    values = attributes[choice].values()[0]    # Candidates values for this attr
+    # Group the data
+    children_data = {value: [item for item in data if item[choice]==value] for value in values}
+    if len(children_data)==1:
+        # return a leaf if the attr tells nothing
+        return TreeNode(value=value, children=data)
+    else:
+        remained_attrs = attributes.copy()
+        del remained_attrs[choice]
+        children = {}
+        for child, child_data in children_data.iteritems():
+            if len(child_data) == 0:
+                children[child] = TreeNode(value=child, children=child_data, defaultValue=ZeroR(data))
+            else:
+                children[child] = makeTree(child_data, remained_attrs, value=child)
+        node = TreeNode(attribute=choice, value=value, children=children)
+        return node
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="""
+    Simply use:
+    `python decisionTree.py ARFF_FILE`
+
+    Wanzhang Sheng, Copyright 2013, GPL
+    """)
+    parser.add_argument('arff_file', help='The source ARFF file.')
+    parser.add_argument('--verbose', dest='verbose', action='store_true', help="Be verbose to debug.")
+    args = parser.parse_args()
+    VERBOSE = args.verbose
+
+    (attrs, data) = readARFF.readArff(open(args.arff_file))
+
+    print "=Begin=========="
+    random.seed()
+    build_data = random.sample(data, int(len(data)*4/5))
+    test_data = [d for d in data if (d not in build_data)]
+
+    root = makeTree(build_data, attrs)
+    print "=Test===="
+    correct = 0
+    for d in test_data:
+        res = root.classify(d, attrs)
+        if d[-1] == res:
+            correct += 1
+        #print "%s:%s" % (d[-1], res)
+    print "correctness: %d/%d=%.2f%%" % (correct, len(test_data), float(correct*100)/len(test_data))
+    print "================"
