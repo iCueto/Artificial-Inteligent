@@ -140,6 +140,27 @@ def makeTree(data, attributes, value=None, defaultValue=None) :
         return node
 
 
+# Return empty statistics dictionary
+def init_statistics(domain):
+    return {answer: {a:0 for a in domain} for answer in domain}
+
+
+# precision: TP/(TP+FP)
+# recall: TP/(TP+TN)
+# accuracy: (TP+FN)/A
+def print_test(test_data):
+    TP = test_data[domain[0]][domain[0]]
+    FP = test_data[domain[-1]][domain[0]]
+    TN = test_data[domain[0]][domain[-1]]
+    FN = test_data[domain[-1]][domain[-1]]
+    total = TP+FP+TN+FN
+    print "  precision: %d/%d=%.2f%%" % (TP, (TP+FP), float(TP*100)/(TP+FP))
+    print "  recall:    %d/%d=%.2f%%" % (TP, (TP+TN), float(TP*100)/(TP+TN))
+    print "  accuracy:  %d/%d=%.2f%%" % (TP+FN, total, float((TP+FN)*100)/total)
+
+
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="""
     Simply use to test:
@@ -152,23 +173,25 @@ if __name__ == '__main__':
     args = parser.parse_args()
     VERBOSE = args.verbose
 
-    (attrs, data) = readARFF.readArff(open(args.arff_file))
+    (attrs, data, classify_attr) = readARFF.readArff(open(args.arff_file))
+    domain = classify_attr.values()[0]
     random.seed()
 
     print ('=' + args.arff_file).ljust(25,'=')
-    total_correct = 0
+    total = init_statistics(domain)
     for time in range(0,5):
+        print " -%d time-" % (time+1)
         build_data = random.sample(data, int(len(data)*4/5))
         test_data = [d for d in data if (d not in build_data)]
 
         root = makeTree(build_data, attrs)
-        correct = 0
+        the_round = init_statistics(domain)
         for d in test_data:
             res = root.classify(d, attrs)
-            if d[-1] == res:
-                correct += 1
-            #print "%s:%s" % (d[-1], res)
-        total_correct += correct
-        print "  %d time correctness: %d/%d=%.2f%%" % (time+1, correct, len(test_data), float(correct*100)/len(test_data))
-    print "Total correctness: %d/%d=%.2f%%" % (total_correct, 5*len(test_data), float(total_correct*100)/(len(test_data)*5))
+            the_round[d[-1]][res] += 1
+            total[d[-1]][res] += 1
+        print_test(the_round)
+
+    print ' -total-'
+    print_test(total)
     print "=End".ljust(25,'=')

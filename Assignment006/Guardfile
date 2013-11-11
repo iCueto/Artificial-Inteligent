@@ -1,6 +1,6 @@
 guard 'shell' do
   #watch('decisionTree.py') { puts `python decisionTree.py restaurant.arff` }
-  watch('decisionTree.py') { puts `python decisionTree.py nursery.arff` }
-  #watch('decisionTree.py') { puts `python decisionTree.py breast-cancer.arff` }
+  #watch('decisionTree.py') { puts `python decisionTree.py nursery.arff` }
+  watch('decisionTree.py') { puts `python decisionTree.py breast-cancer.arff` }
   watch('readARFF.py') { puts `python readARFF.py restaurant.arff` }
 end

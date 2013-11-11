@@ -18,7 +18,7 @@ def readArff(filehandle) :
     ### get all attribute lines
     attribLines = [line for line in lines if line.startswith('@attribute')]
     #this assumes the target class attribute is listed last in the ARFF file!!
-    for index in range(len(attribLines)-1) :
+    for index in range(len(attribLines)) :
         line = attribLines[index]
         chunks = [chunk.strip() for chunk in line.split(' ',2)]
         if chunks[2].startswith('{') : ### this is a nominal attribute
@@ -26,11 +26,16 @@ def readArff(filehandle) :
         else : ## this is string or numeric
             attributes[index]= {chunks[1] : chunks[2]}
 
+    # Take the clasify field specially
+    index = len(attribLines)-1  # last field
+    classify_attr = attributes[index]
+    del attributes[index]
+
     ### data will be lines that don't begin with a '@'
     dataLines = [line.strip() for line in lines if not line.startswith('@')]
     for line in dataLines :
         data.append(map(string.strip, line.split(',')))
-    return (attributes, data)
+    return (attributes, data, classify_attr)
 
 
 
@@ -67,7 +72,7 @@ if __name__ == '__main__' :
         print "Usage: readARFF {--pfile=outfile} infile"
         sys.exit(-1)
     fname = sys.argv[-1]
-    (attrs, data) = readArff(open(fname))
+    (attrs, data, classify_attr) = readArff(open(fname))
     print "Most common classification is: ", computeZeroR(attrs,data)
     if sys.argv[1].startswith("--pfile") :
         ofile = sys.argv[1].split('=')[1]
