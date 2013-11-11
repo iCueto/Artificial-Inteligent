@@ -142,7 +142,7 @@ def makeTree(data, attributes, value=None, defaultValue=None) :
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="""
-    Simply use:
+    Simply use to test:
     `python decisionTree.py ARFF_FILE`
 
     Wanzhang Sheng, Copyright 2013, GPL
@@ -153,19 +153,22 @@ if __name__ == '__main__':
     VERBOSE = args.verbose
 
     (attrs, data) = readARFF.readArff(open(args.arff_file))
-
-    print "=Begin=========="
     random.seed()
-    build_data = random.sample(data, int(len(data)*4/5))
-    test_data = [d for d in data if (d not in build_data)]
 
-    root = makeTree(build_data, attrs)
-    print "=Test===="
-    correct = 0
-    for d in test_data:
-        res = root.classify(d, attrs)
-        if d[-1] == res:
-            correct += 1
-        #print "%s:%s" % (d[-1], res)
-    print "correctness: %d/%d=%.2f%%" % (correct, len(test_data), float(correct*100)/len(test_data))
-    print "================"
+    print ('=' + args.arff_file).ljust(25,'=')
+    total_correct = 0
+    for time in range(0,5):
+        build_data = random.sample(data, int(len(data)*4/5))
+        test_data = [d for d in data if (d not in build_data)]
+
+        root = makeTree(build_data, attrs)
+        correct = 0
+        for d in test_data:
+            res = root.classify(d, attrs)
+            if d[-1] == res:
+                correct += 1
+            #print "%s:%s" % (d[-1], res)
+        total_correct += correct
+        print "  %d time correctness: %d/%d=%.2f%%" % (time+1, correct, len(test_data), float(correct*100)/len(test_data))
+    print "Total correctness: %d/%d=%.2f%%" % (total_correct, 5*len(test_data), float(total_correct*100)/(len(test_data)*5))
+    print "=End".ljust(25,'=')
