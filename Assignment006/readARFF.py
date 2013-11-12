@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import cPickle as pickle
-import sys, string
+import sys, string, random
 
 ### read in data from an ARFF file and return the following data structures:
 ### A dict that maps an attribute index to a dictionary mapping attribute names to either:
@@ -67,15 +67,29 @@ if __name__ == '__main__' :
     fname = sys.argv[-1]
     (attrs, data, classify_attr) = readArff(open(fname))
     domain = classify_attr.values()[0]
+    random.seed()
 
-    zeroR = computeZeroR(attrs,data)
-    print "Most common classification is: ", zeroR
+    print ('=' + fname).ljust(25,'=')
+    for time in range(0,5):
+        print " -%d time-" % (time+1)
+        random.shuffle(data)
+        sp = int(len(data)*4/5)
+        train_data = data[:sp]
+        test_data = data[sp+1:]
+        zeroR = computeZeroR(attrs, train_data)
+        print "  Most common classification is: ", zeroR
 
-    tp = 0
-    for d in data:
-        if zeroR == d[-1]: tp += 1
-    total = len(data)
-    fp = total-tp
-    print "  precision: %d/%d=%.2f%%" % (tp, total, float(tp*100)/total)
-    print "  recall:    %d/%d=%.2f%%" % (tp, tp, float(100))
-    print "  accuracy:  %d/%d=%.2f%%" % (tp, total, float(tp*100)/total)
+        # noise
+        noise = 0
+        for d in train_data:
+            if zeroR != d[-1]: noise += 1
+        print "  noise:     %d/%d=%.2f%%" % (noise, len(train_data), float(noise*100)/len(train_data))
+
+        tp = 0
+        for d in test_data:
+            if zeroR == d[-1]: tp += 1
+        total = len(test_data)
+        fp = total-tp
+        print "  precision: %d/%d=%.2f%%" % (tp, total, float(tp*100)/total)
+        print "  recall:    %d/%d=%.2f%%" % (tp, tp, float(100))
+        print "  accuracy:  %d/%d=%.2f%%" % (tp, total, float(tp*100)/total)
