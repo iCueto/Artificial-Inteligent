@@ -42,15 +42,8 @@ def readArff(filehandle) :
 ### Compute ZeroR - that is, the most common data classification without
 ### examining any of the attributes. Return the most comon classification.
 def computeZeroR(attributes, data) :
-    max = 0
-    maxItem = ''
-    classes = [item[-1] for item in data]
-    vals = set(classes)
-    for item in vals :
-        if classes.count(item) > max :
-            classes.count(item) == max
-            maxItem = item
-    return maxItem
+    classes = [d[-1] for d in data]
+    return max([(classes.count(key), key) for key in set(classes)])[1]
 
 
 ### takes as input the dictionary of attributes and returns a list of
@@ -73,12 +66,16 @@ if __name__ == '__main__' :
         sys.exit(-1)
     fname = sys.argv[-1]
     (attrs, data, classify_attr) = readArff(open(fname))
-    print "Most common classification is: ", computeZeroR(attrs,data)
-    if sys.argv[1].startswith("--pfile") :
-        ofile = sys.argv[1].split('=')[1]
-        fh = open(ofile, 'w')
-        pickle.dump(attrs, fh)
-        pickle.dump(data, fh)
-    else :
-        print "Attributes: ", attrs
-        print "Data: ", data
+    domain = classify_attr.values()[0]
+
+    zeroR = computeZeroR(attrs,data)
+    print "Most common classification is: ", zeroR
+
+    tp = 0
+    for d in data:
+        if zeroR == d[-1]: tp += 1
+    total = len(data)
+    fp = total-tp
+    print "  precision: %d/%d=%.2f%%" % (tp, total, float(tp*100)/total)
+    print "  recall:    %d/%d=%.2f%%" % (tp, tp, float(100))
+    print "  accuracy:  %d/%d=%.2f%%" % (tp, total, float(tp*100)/total)

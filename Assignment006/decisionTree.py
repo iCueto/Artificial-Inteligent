@@ -182,8 +182,10 @@ if __name__ == '__main__':
     total_noise = 0
     for time in range(0,5):
         print " -%d time-" % (time+1)
-        train_data = random.sample(data, int(len(data)*4/5))
-        test_data = [d for d in data if (d not in train_data)]
+        random.shuffle(data)
+        sp = int(len(data)*4/5)
+        train_data = data[:sp]
+        test_data = data[sp+1:]
         root = makeTree(train_data, attrs)
 
         # noise
