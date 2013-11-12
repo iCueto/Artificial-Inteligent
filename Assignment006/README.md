@@ -4,6 +4,10 @@ Simply run:
 
     ./decisionTree.py ARFF_FILE
 
+I also modified the `readARFF.py` to run the same test on ZeroR:
+
+    ./readARFF.py ARFF_FILE
+
 Then you may get something like:
 
     =restaurant.arff=========

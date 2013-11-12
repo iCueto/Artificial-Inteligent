@@ -1,0 +1,65 @@
+<h1>Discuss on decision tree</h1>
+
+<ol>
+<li><p>Did one of the data sets prove more challenging than the others?</p>
+
+<p>Data as follow:</p>
+
+<pre><code>-breast-cancer.arff-
+ noise:     17/1140=1.49%
+ precision: 139/178=78.09%
+ recall:    139/203=68.47%
+ accuracy:  182/285=63.86%
+-nursery.arff-
+ noise:     0/51840=0.00%
+ precision: 4332/4332=100.00%
+ recall:    4332/4332=100.00%
+ accuracy:  8338/8338=100.00%
+</code></pre>
+
+<p><code>nursery.arff</code> has no noise, accuracy is <code>100.00%</code>, but <code>breast-cancer.arff</code> just has <code>64%</code>, which means it's much more challenging.</p></li>
+<li><p>What was the difference between training and test set accuracy? Was your tree overfitting on any of the data sets?</p>
+
+<p>Basically the accuracy of the training dataset would be higher than the test dataset.</p>
+
+<p>Accuracy of the training dataset is <code>100% - noise</code>. In <code>breast-cancer.arff</code>, the accuracy of the training dataset is <code>98.51%</code>. It's much higher than the accuracy of the test dataset. It means in this case it's overfitting. <code>nursery.arff</code> doesn't have this problem.</p></li>
+<li><p>Did it appears that any of the datasets was noisy or had other interesting issues?</p>
+
+<p><code>breast-cancer.arff</code> has less than <code>2%</code> noise, <code>nursery.arff</code> even has no noise.</p>
+
+<p><code>breast-cancer.arff</code> has one more attributes to test than <code>nursery.arff</code>, but <code>nursery.arff</code>'s accuracy is <code>100%</code> much higher than <code>breast-cancer.arff</code>. This tells us the size of the dataset is much more important to the accuracy than the numbers of the attributes.</p></li>
+<li><p>Did the trees look very different between the different folds?</p>
+
+<p>It's pretty stable. For <code>breast-cancer.arff</code>, it stay around <code>60%~70%</code>.</p></li>
+</ol>
+
+<h2>Extra</h2>
+
+<p>Run the same 5-fold cross validations through your original ZeroR learning algorithm from HW1. What was the precision, recall, and accuracy? How much worse was this than your decision tree?</p>
+
+<pre><code>-ZeroR-nursery.arff-
+noise:     6938/10368=66.92%
+precision: 889/2591=34.31%
+recall:    889/889=100.00%
+accuracy:  889/2591=34.31%
+
+-DT-nursery.arff-
+noise:     0/51840=0.00%
+precision: 4332/4332=100.00%
+recall:    4332/4332=100.00%
+accuracy:  8338/8338=100.00%
+
+-ZeroR-breast-cancer.arff-
+noise:     69/228=30.26%
+precision: 41/57=71.93%
+recall:    41/41=100.00%
+accuracy:  41/57=71.93%
+
+-DT-breast-cancer.arff-
+noise:     17/1140=1.49%
+precision: 139/178=78.09%
+recall:    139/203=68.47%
+accuracy:  182/285=63.86%
+</code></pre>
+
+<p>For <code>breast-cancer.arff</code>, it's not much worse. But for <code>nursery.arff</code>, it's worse about <code>191.46%</code>.</p>
