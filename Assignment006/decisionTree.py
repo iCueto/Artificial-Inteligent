@@ -179,12 +179,21 @@ if __name__ == '__main__':
 
     print ('=' + args.arff_file).ljust(25,'=')
     total = init_statistics(domain)
+    total_noise = 0
     for time in range(0,5):
         print " -%d time-" % (time+1)
-        build_data = random.sample(data, int(len(data)*4/5))
-        test_data = [d for d in data if (d not in build_data)]
+        train_data = random.sample(data, int(len(data)*4/5))
+        test_data = [d for d in data if (d not in train_data)]
+        root = makeTree(train_data, attrs)
 
-        root = makeTree(build_data, attrs)
+        # noise
+        noise = 0
+        for d in train_data:
+            if root.classify(d, attrs) != d[-1]:
+                noise += 1
+        total_noise += noise
+        print "  noise:     %d/%d=%.2f%%" % (noise, len(train_data), float(noise*100)/len(train_data))
+
         the_round = init_statistics(domain)
         for d in test_data:
             res = root.classify(d, attrs)
@@ -193,5 +202,7 @@ if __name__ == '__main__':
         print_test(the_round)
 
     print ' -total-'
+    print "  noise:     %d/%d=%.2f%%" % (total_noise, len(train_data)*5, float(total_noise*20)/len(train_data))
     print_test(total)
+
     print "=End".ljust(25,'=')
