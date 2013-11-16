@@ -145,18 +145,28 @@ def init_statistics(domain):
     return {answer: {a:0 for a in domain} for answer in domain}
 
 
-# precision: TP/(TP+FP)
-# recall: TP/(TP+TN)
+# precision: TP/P
+# recall: TP/T
 # accuracy: (TP+FN)/A
 def print_test(test_data):
-    TP = test_data[domain[0]][domain[0]]
-    FP = test_data[domain[-1]][domain[0]]
-    TN = test_data[domain[0]][domain[-1]]
-    FN = test_data[domain[-1]][domain[-1]]
-    total = TP+FP+TN+FN
-    print "  precision: %d/%d=%.2f%%" % (TP, (TP+FP), float(TP*100)/(TP+FP))
-    print "  recall:    %d/%d=%.2f%%" % (TP, (TP+TN), float(TP*100)/(TP+TN))
-    print "  accuracy:  %d/%d=%.2f%%" % (TP+FN, total, float((TP+FN)*100)/total)
+    a = sum([test_data[i][j] for i in test_data for j in test_data[i]])
+    accuracy = sum([test_data[d][d] for d in test_data])
+    print "  \033[92maccuracy:\033[0m    %d/%d=%.2f%%" % (accuracy, a, float(accuracy*100)/a)
+    for d in test_data:
+        print "  [%s]:" % d
+        tp = test_data[d][d]
+        t = sum([test_data[d][i] for i in test_data[d]])
+        p = sum([test_data[i][d] for i in test_data[d]])
+        if p == 0:
+            precision = 0
+        else:
+            precision = float(tp*100)/p
+        if t == 0:
+            recall = 0
+        else:
+            recall = float(tp*100)/t
+        print "    \033[92mprecision:\033[0m %d/%d=%.2f%%" % (tp, p, precision)
+        print "    \033[92mrecall:\033[0m    %d/%d=%.2f%%" % (tp, t, recall)
 
 
 
@@ -181,7 +191,7 @@ if __name__ == '__main__':
     total = init_statistics(domain)
     total_noise = 0
     for time in range(0,5):
-        print " -%d time-" % (time+1)
+        print " \033[93m-%d time-\033[0m" % (time+1)
         random.shuffle(data)
         sp = int(len(data)*4/5)
         train_data = data[:sp]
@@ -194,7 +204,7 @@ if __name__ == '__main__':
             if root.classify(d, attrs) != d[-1]:
                 noise += 1
         total_noise += noise
-        print "  noise:     %d/%d=%.2f%%" % (noise, len(train_data), float(noise*100)/len(train_data))
+        print "  \033[92mnoise:\033[0m       %d/%d=%.2f%%" % (noise, len(train_data), float(noise*100)/len(train_data))
 
         the_round = init_statistics(domain)
         for d in test_data:
@@ -203,8 +213,8 @@ if __name__ == '__main__':
             total[d[-1]][res] += 1
         print_test(the_round)
 
-    print ' -total-'
-    print "  noise:     %d/%d=%.2f%%" % (total_noise, len(train_data)*5, float(total_noise*20)/len(train_data))
+    print ' \033[93m-total-\033[0m'
+    print "  \033[92mnoise:\033[0m     %d/%d=%.2f%%" % (total_noise, len(train_data)*5, float(total_noise*20)/len(train_data))
     print_test(total)
 
-    print "=End".ljust(25,'=')
+    print "\033[93m=End".ljust(25,'=')

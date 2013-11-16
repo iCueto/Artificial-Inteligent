@@ -22,7 +22,7 @@ def readArff(filehandle) :
         line = attribLines[index]
         chunks = [chunk.strip() for chunk in line.split(' ',2)]
         if chunks[2].startswith('{') : ### this is a nominal attribute
-            attributes[index] = {chunks[1] : [item.strip() for item in chunks[2].strip('\n{} ').split(',')]}
+            attributes[index] = {chunks[1] : [item.strip(" '") for item in chunks[2].strip('\n{} ').split(',')]}
         else : ## this is string or numeric
             attributes[index]= {chunks[1] : chunks[2]}
 
