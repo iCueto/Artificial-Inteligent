@@ -10,7 +10,7 @@
 @attribute dimen {'1','2','3'}
 @attribute enlar {'1','2','3','4'}
 @attribute changes {'1','2','3','4'}
-@attribute defect {'1','2','3'}
+@attribute defect {'1','2','3','4'}
 @attribute node {'1','2','3','4'}
 @attribute stru {'1','2','3','4','5','6','7','8'}
 @attribute special {'1','2','3'}
