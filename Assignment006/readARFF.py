@@ -34,7 +34,7 @@ def readArff(filehandle) :
     ### data will be lines that don't begin with a '@'
     dataLines = [line.strip() for line in lines if not line.startswith('@')]
     for line in dataLines :
-        data.append(map(string.strip, line.split(',')))
+        data.append([d.strip(" '") for d in line.split(',')])
     return (attributes, data, classify_attr)
 
 
